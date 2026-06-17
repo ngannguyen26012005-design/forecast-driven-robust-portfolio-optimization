@@ -1,89 +1,313 @@
-# forecast-driven-robust-portfolio-optimization
-An operational research framework for uncertainty-aware portfolio optimization using economic policy uncertainty forecasting, convex optimization, and out-of-sample backtesting.
-# Forecast-Driven Robust Portfolio Optimization under Economic Policy Uncertainty (EPU)
+# Forecast-Driven Robust Portfolio Optimization under Macroeconomic Uncertainty
 
-An end-to-end Operational Research (OR) and Financial Engineering pipeline that integrates macroeconomic time-series forecasting with constrained convex portfolio optimization to mitigate parameter estimation errors during structural regime shifts.
+## An Operational Research Framework Integrating Time-Series Forecasting and Convex Optimization
 
-## Project Architecture & Workflow
-The system bridges financial econometrics and mathematical programming through a unified three-module pipeline:
-1. **Macro Feature & Data Engineering:** Resolves non-stationarity via logging and differencing, temporal monthly alignment (`MS`), and automatic imputation of structural data gaps from the FRED database.
-2. **Time-Series Forecasting Engine:** Evaluates 9 candidate architectures across econometric (ARIMA/SARIMAX), Machine Learning (XGBoost, LightGBM, Random Forest, Extra Trees), and Deep Learning (LSTM, GRU) paradigms using Walk-Forward Validation.
-3. **Convex Programming & Sandbox Backtester:** Maps continuous predictive expectations into a dynamic Z-score risk modifier, solves the optimal asset allocation matrix via `CVXPY`, and runs a monthly rebalancing simulation net of transaction frictional costs.
+# Project Overview
+
+This project develops a forecast-driven robust portfolio optimization framework that integrates macroeconomic uncertainty forecasting with mathematical optimization.
+
+The main objective is to transform Economic Policy Uncertainty (EPU) forecasts into dynamic portfolio allocation decisions by combining:
+- Time-series forecasting
+- Machine learning models
+- Deep learning models
+- Risk modelling
+- Convex optimization
+- Out-of-sample portfolio backtesting
+
+The framework aims to address a major limitation of traditional portfolio optimization approaches: relying purely on historical information while ignoring changing macroeconomic conditions. Instead, this research introduces a forward-looking uncertainty signal that adjusts portfolio risk exposure under different economic environments.
+
+# Research Motivation
+
+Classical Mean-Variance Optimization assumes that historical expected returns and covariance structures provide reliable information for future allocation decisions. However, financial markets are influenced by:
+- Economic policy uncertainty
+- Interest rate changes
+- Inflation pressure
+- Market volatility shocks
+- Structural economic transitions
+
+Therefore, this project investigates:
+
+> Can macroeconomic uncertainty forecasts improve portfolio allocation decisions and enhance risk-adjusted performance?
+
+The proposed workflow follows:
+Macroeconomic data -> Forecast Economic Uncertainty -> Transform Forecast into Risk Signal -> Optimize Portfolio Allocation -> Evaluate Strategy Performance 
+
+# Methodology Overview
+
+The project consists of three main components:
+
+## 1. Economic Uncertainty Forecasting
+
+Multiple forecasting approaches are evaluated:
+
+### Econometric Models
+
+- ARIMA
+- SARIMAX
+
+### Machine Learning Models
+
+- XGBoost
+- Random Forest
+- Extra Trees
+- LightGBM
+
+### Deep Learning Models
+
+- LSTM
+- GRU
 
 
-## Key Empirical Findings
+Models are compared using:
 
-### Forecasting Performance (EPU Horizon)
-Out-of-sample evaluations over the test period (**January 2022 – December 2025**) demonstrate that the parsimonious **ARIMA(1,1,1)** model serves as the champion architecture, validating the *Principle of Parsimony* for lower-frequency macro-indicators. Pairwise predictive accuracy is mathematically confirmed via the Diebold-Mariano test ($DM = -0.078, p = 0.938$).
-
-| Forecasting Model | Test RMSE | Test MAE | Test MAPE (%) |
-| :--- | :---: | :---: | :---: |
-| **ARIMA(1,1,1) [Champion]** | **45.57** | **26.76** | **14.45%** |
-| SARIMAX(1,1,1) | 45.77 | 26.93 | 14.61% |
-| XGBoost (Walk-Forward) | 51.32 | 29.94 | 15.50% |
-| LSTM Network | 67.45 | 41.20 | 19.80% |
-
-### Sandbox Backtesting Performance (Multi-Asset Universe)
-Rigorous monthly rebalancing backtests over a liquid multi-asset universe (**SPY, QQQ, TLT, LQD, GLD**), net of **10 basis points (0.1%) transaction costs**, prove the systemic dominance of the proposed model:
-
-| Evaluation Metric (Ann. Basis) | Equal-Weight (1/N) Baseline | Traditional Mean-Variance | Proposed EPU-Robust OR Model |
-| :--- | :---: | :---: | :---: |
-| **Annualized Return** | 7.80% | 8.40% | **9.10%** |
-| **Annualized Volatility** | 13.20% | 11.50% | **10.80%** |
-| **Sharpe Ratio (Risk-Free = 3%)**| 0.36 | 0.47 | **0.56** *(+19.1% vs MV)* |
-| **Maximum Drawdown** | -18.10% | -14.20% | **-11.50%** *(Risk Mitigated)* |
-| **Portfolio Turnover (Monthly)** | 0.00% | 0.35% | **0.09%** *(Cost-Efficient)* |
+- RMSE
+- MAE
+- MAPE
+- MASE
 
 
-## Portfolio Optimization Objective
-
-The framework maps continuous predicted uncertainty levels into a dynamic conditional risk penalty. The mathematical engine solves the following regularized convex optimization problem at each rebalancing node:
-
-$$\min_{w} \quad w^T \Sigma w + \lambda \|w - w_{naive}\|_2^2$$
-
-$$\text{subject to } \quad \sum_{i=1}^n w_i = 1, \quad w_i \ge 0, \quad w^T \mu \ge R_{target}$$
-
-where $\Sigma$ represents the uncertainty-adjusted covariance risk matrix, and $\lambda$ acts as the dynamic risk-aversion parameter derived via the forecasted EPU Z-score.
-
-## Dataset Profile
-- **Source:** Federal Reserve Economic Database (FRED)
-- **Temporal Horizon:** January 1990 – December 2025 (420 clean monthly observations)
-- **Features:** - *Target:* Economic Policy Uncertainty Index (`EPU`)
-  - *Macro Endogenous Controls:* `CPIAUCSL` (Inflation), `FEDFUNDS`, `GS10`, `TB3MS` (Yield Curve Dynamics), `INDPRO` (Macro Output), `UMCSENT` (Sentiment), `UNRATE` (Unemployment), `VIXCLS` (Financial Volatility).
-
-## Tech Stack & Dependencies
-- **Mathematical Programming:** `cvxpy` (ECOS/SCS solvers)
-- **Time Series & Forecasting:** `statsmodels`, `scikit-learn`, `xgboost`, `lightgbm`
-- **Deep Learning Neural Networks:** `tensorflow` / `keras`
-- **Data Engineering:** `pandas`, `numpy`, `scipy`
+A walk-forward validation framework is applied to reduce look-ahead bias.
 
 
-## Project Repository Structure
-```text
-macro-uncertainty-portfolio-optimization/
+## 2. Risk Transformation
+
+The forecasted Economic Policy Uncertainty index is converted into a standardized risk indicator:
+
+\[
+RiskScore_t=
+\frac{\hat{EPU}_t-\mu_{EPU}}
+{\sigma_{EPU}}
+\]
+
+where:
+
+- \(\hat{EPU}_t\) represents the predicted uncertainty level
+- \(\mu_{EPU}\) represents historical average uncertainty
+- \(\sigma_{EPU}\) represents historical volatility
+
+
+Interpretation:
+
+- Positive Risk Score → higher uncertainty environment
+- Negative Risk Score → lower uncertainty environment
+
+
+This signal is incorporated into the portfolio optimization process.
+
+## 3. Portfolio Optimization
+
+The portfolio allocation problem is solved using convex optimization through CVXPY.
+
+The objective function:
+
+\[
+min_w
+\quad
+w^T\Sigma w+\lambda ||w-w_0||^2
+\]
+
+
+Subject to:
+
+\[
+\sum_i w_i=1
+\]
+
+\[
+w_i \geq 0
+\]
+
+
+where:
+
+- \(w\) = portfolio weights
+- \(\Sigma\) = adjusted covariance matrix
+- \(\lambda\) = risk aversion parameter
+- \(w_0\) = reference allocation vector
+
+
+The regularization term improves portfolio stability and reduces excessive weight fluctuations.
+
+# Dataset Description
+
+## Data Source
+
+Federal Reserve Economic Database (FRED)
+
+## Frequency
+
+Monthly observations
+
+## Research Period
+
+January 1990 – December 2025
+
+
+## Variables
+
+| Variable | Code | Description |
+|-|-|-|
+| EPU | USEPUINDXM | Economic Policy Uncertainty Index |
+| CPI | CPIAUCSL | Consumer Price Index |
+| FEDFUNDS | FEDFUNDS | Federal Funds Rate |
+| GS10 | GS10 | 10-Year Treasury Yield |
+| TB3MS | TB3MS | 3-Month Treasury Rate |
+| INDPRO | INDPRO | Industrial Production |
+| UMCSENT | UMCSENT | Consumer Sentiment Index |
+| UNRATE | UNRATE | Unemployment Rate |
+| VIX | VIXCLS | Market Volatility Index |
+
+
+# Feature Engineering
+
+The preprocessing pipeline generates:
+
+## Lag Features
+
+Historical EPU values:
+
+- Lag 1
+- Lag 3
+- Lag 6
+- Lag 12
+- Lag 24
+
+
+## Rolling Statistics
+
+Rolling mean and standard deviation:
+
+- 3 months
+- 6 months
+- 12 months
+- 24 months
+
+
+## Momentum Features
+
+Changes in uncertainty dynamics are captured through sequential differences.
+
+
+## Yield Spread
+
+A financial indicator is constructed:
+
+\[
+Yield\ Spread = GS10 - TB3MS
+\]
+
+
+All temporal variables are generated using lagged information to prevent data leakage.
+
+# Forecasting Results
+
+Out-of-sample evaluation:
+
+**January 2022 – December 2025**
+
+The best forecasting performance was achieved by:
+
+## ARIMA(1,1,1)
+
+
+| Model | RMSE | MAE | MAPE |
+|-|-:|-:|-:|
+| ARIMA | 45.57 | 26.76 | 14.45% |
+| SARIMAX | 45.77 | 26.93 | 14.61% |
+| XGBoost | 51.32 | 29.94 | 15.50% |
+| Random Forest | 66.93 | 38.86 | 18.91% |
+| LSTM | 67.45 | 41.20 | 19.80% |
+
+
+The results suggest that traditional econometric models remain highly competitive for forecasting macroeconomic uncertainty indicators.
+
+# Portfolio Backtesting
+
+The proposed portfolio strategy is compared with:
+
+## Equal Weight Portfolio
+
+A simple 1/N benchmark allocation.
+
+## Traditional Mean-Variance Optimization
+
+Classical Markowitz optimization without macroeconomic adjustment.
+
+## EPU-Robust Optimization
+
+The proposed approach incorporating forecasted uncertainty information.
+
+Evaluation metrics:
+
+- Annualized Return
+- Volatility
+- Sharpe Ratio
+- Maximum Drawdown
+- Portfolio Turnover
+
+# Empirical Findings
+
+The backtesting results show that incorporating macroeconomic uncertainty forecasts can improve portfolio decision-making.
+
+Key observations:
+
+- Forecast-based risk adjustment improves portfolio adaptability.
+- Convex regularization prevents unstable allocations.
+- The proposed framework maintains portfolio stability across different uncertainty conditions.
+- Transaction turnover remains controlled, improving practical implementation.
+
+# Technology Stack
+
+## Programming
+
+- Python
+
+## Data Science
+
+- Pandas
+- NumPy
+- Scikit-learn
+- XGBoost
+- LightGBM
+
+## Forecasting
+
+- Statsmodels
+- TensorFlow / Keras
+
+## Optimization
+
+- CVXPY
+
+## Visualization
+
+- Matplotlib
+- Seaborn
+
+# Repository Structure
+``text
+Forecast-Driven-Robust-Portfolio-Optimization/
 │
-├── forecast_driven_robust_optimization.ipynb   # Master End-to-End Code Notebook
-├── RESEARCH_REPORT.pdf                         # Full Peer-Reviewed Style Project Report
-├── requirements.txt                            # Environment Dependency Specifications
+├── forecast_driven_robust_optimization.ipynb   # Master End-to-End Analysis & Execution Code
+├── RESEARCH_REPORT.pdf                         # Academic Style Comprehensive Project Report
+├── data/                                       # Historical Time-Series Macro Data Files
+├── results/
+│   ├── tables/                                 # Exported Strategy Results & Metric Summaries
+│   └── figures/                                # Realized Allocation Trajectories & Error Plots
+├── requirements.txt                            # Complete Python Dependency Environment Setup
 └── README.md                                   # Portfolio Executive Summary
 
-# Research Area
-
-Relevant fields:
-
+# Academic Relevance 
 - Operations Research
+- Mathematical Optimization
 - Financial Engineering
-- Quantitative Finance
-- Data Science
-- Applied Mathematics
-
-## Author
-
+- Time-Series Forecasting
+- Applied Data Science
+# Author 
 Nguyen Thai Ngan 
-
-Economic Mathematics Student
-
+Economic Mathematics student 
 Interested in:
-- Optimization
-- Financial Data Science
-- Quantitative Research
+Quantitative Finance
+Risk Modelling
+Operations Research
+Data Science
