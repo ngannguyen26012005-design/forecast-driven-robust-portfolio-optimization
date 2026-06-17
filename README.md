@@ -225,9 +225,11 @@ Forecast-Driven-Robust-Portfolio-Optimization/
 
 # Author 
 Nguyen Thai Ngan 
+
 Economic Mathematics student 
+
 Interested in:
-Quantitative Finance
-Risk Modelling
-Operations Research
-Data Science
+- Quantitative Finance
+- Risk Modelling
+- Operations Research
+- Data Science
