@@ -214,12 +214,15 @@ Forecast-Driven-Robust-Portfolio-Optimization/
 │   └── figures/                                # Realized Allocation Trajectories & Error Plots
 ├── requirements.txt                            # Complete Python Dependency Environment Setup
 └── README.md                                   # Portfolio Executive Summary
+```
+
 # Academic Relevance 
 - Operations Research
 - Mathematical Optimization
 - Financial Engineering
 - Time-Series Forecasting
 - Applied Data Science
+
 # Author 
 Nguyen Thai Ngan 
 Economic Mathematics student 
